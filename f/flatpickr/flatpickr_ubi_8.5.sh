@@ -1,14 +1,14 @@
 #!/bin/bash -e
 # -----------------------------------------------------------------------------
 #
-# Package          : pathval
-# Version          : v1.1.0, v1.1.1
-# Source repo      : https://github.com/chaijs/pathval
+# Package          : flatpickr
+# Version          : v4.6.9
+# Source repo      : https://github.com/chmln/flatpickr
 # Tested on        : RHEL 8.5,UBI 8.5
 # Language         : Node
 # Travis-Check     : True
 # Script License   : Apache License, Version 2 or later
-# Maintainer       : Vathsala .<vaths367@in.ibm.com>
+# Maintainer       : Vathsala . <vaths367@in.ibm.com>
 #
 # Disclaimer       : This script has been tested in root mode on given
 # ==========         platform using the mentioned version of the package.
@@ -16,27 +16,21 @@
 #                    package and/or distribution. In such case, please
 #                    contact "Maintainer" of this script.
 #
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-PACKAGE_VERSION=${1:-v1.1.0}
-PACKAGE_NAME=pathval
-PACKAGE_URL=https://github.com/chaijs/pathval.git
+PACKAGE_NAME=flatpickr
+#PACKAGE_VERSION is configurable can be passed as an argument.
+PACKAGE_VERSION=${1:-v4.6.9}
+PACKAGE_URL=https://github.com/chmln/flatpickr.git
 
-yum install -y yum-utils git jq bzip2  wget -y fontconfig freetype freetype-devel fontconfig-devel libstdc++
+yum install -y yum-utils git jq
 
-#install phantomjs
-wget https://github.com/ibmsoe/phantomjs/releases/download/2.1.1/phantomjs-2.1.1-linux-ppc64.tar.bz2
-tar -xvf phantomjs-2.1.1-linux-ppc64.tar.bz2
-ln -s /phantomjs-2.1.1-linux-ppc64/bin/phantomjs /bin/phantomjs
-export PATH=$PATH:/phantomjs-2.1.1-linux-ppc64/bin/phantomjs
-
-NODE_VERSION=v12.22.4
+NODE_VERSION=v12.22.7
 #installing nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 source ~/.bashrc
 nvm install $NODE_VERSION
 OS_NAME=$(cat /etc/os-release | grep ^PRETTY_NAME | cut -d= -f2)
-
 
 if ! git clone -q $PACKAGE_URL $PACKAGE_NAME; then
         echo "------------------$PACKAGE_NAME:clone_fails---------------------------------------"
@@ -44,10 +38,10 @@ if ! git clone -q $PACKAGE_URL $PACKAGE_NAME; then
         echo "$PACKAGE_NAME  |  $PACKAGE_URL |  $PACKAGE_VERSION | $OS_NAME | GitHub | Fail |  Clone_Fails"
         exit 1
 fi
+
 cd $PACKAGE_NAME
 git checkout "$PACKAGE_VERSION" || exit 1
-
-if ! npm install; then
+if ! npm install && npm audit fix && npm audit fix --force; then
         echo "------------------$PACKAGE_NAME:install_fails-------------------------------------"
         echo "$PACKAGE_URL $PACKAGE_NAME"
         echo "$PACKAGE_NAME  |  $PACKAGE_URL | $PACKAGE_VERSION | $OS_NAME | GitHub | Fail |  Install_Fails"
